@@ -1,15 +1,19 @@
 package repositories
 
 import (
+	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 	"testcontainers-demo/app"
 	"testcontainers-demo/models"
 )
 
-var db *gorm.DB
+type PostgresRepository struct {
+	db *gorm.DB
+}
 
-func ConnectToPostgreSQL() (*gorm.DB, error) {
+func NewPostgresRepository() (*PostgresRepository, error) {
 	//dsn := "user=username password=password dbname=dbname host=localhost port=5432 sslmode=disable"
 	dsn := app.Connections.PostgresURL
 	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -17,12 +21,20 @@ func ConnectToPostgreSQL() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db = client
-	return db, nil
+	// Perform database migration
+	err = client.AutoMigrate(&models.Resource{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("DB Migration Done!!!")
+
+	return &PostgresRepository{
+		db: client,
+	}, nil
 }
 
-func CreateResource(resource *models.Resource) error {
-	result := db.Create(resource)
+func (r PostgresRepository) CreateResource(resource *models.Resource) error {
+	result := r.db.Create(resource)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -30,9 +42,9 @@ func CreateResource(resource *models.Resource) error {
 	return nil
 }
 
-func GetResourceById(resourceId string) (*models.Resource, error) {
+func (r PostgresRepository) GetResourceById(resourceId string) (*models.Resource, error) {
 	var resource models.Resource
-	result := db.First(&resource, "id = ?", resourceId)
+	result := r.db.First(&resource, "id = ?", resourceId)
 	if result.Error != nil {
 		return nil, result.Error
 	}

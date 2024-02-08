@@ -8,7 +8,17 @@ import (
 	"testcontainers-demo/repositories"
 )
 
-func CreateResourceHandler(c *gin.Context) {
+type ResourceHandler struct {
+	resourceRepository *repositories.PostgresRepository
+}
+
+func NewResourceHandler(resourceRepo *repositories.PostgresRepository) *ResourceHandler {
+	return &ResourceHandler{
+		resourceRepository: resourceRepo,
+	}
+}
+
+func (h ResourceHandler) CreateResourceHandler(c *gin.Context) {
 	var resourceRequest models.CreateResourceRequest
 	if err := c.ShouldBindJSON(&resourceRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -18,7 +28,7 @@ func CreateResourceHandler(c *gin.Context) {
 	newResourceId := uuid.New().String()
 	newResource := &models.Resource{ID: newResourceId, OfferId: "dunes", SiteGeoLocation: resourceRequest.SiteGeoLocation,
 		AssetInfo: resourceRequest.AssetInfo}
-	err := repositories.CreateResource(newResource)
+	err := h.resourceRepository.CreateResource(newResource)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -27,10 +37,10 @@ func CreateResourceHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"resourceId": newResourceId})
 }
 
-func GetResourceHandler(c *gin.Context) {
+func (h ResourceHandler) GetResourceHandler(c *gin.Context) {
 	resourceId := c.Param("resource-id")
 
-	resource, err := repositories.GetResourceById(resourceId)
+	resource, err := h.resourceRepository.GetResourceById(resourceId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
