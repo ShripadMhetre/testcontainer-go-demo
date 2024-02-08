@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/modules/redis"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"os"
 	"os/signal"
@@ -91,21 +92,21 @@ func CreatePostgreSQLContainer() (testcontainers.Container, error) {
 func CreateRedisContainer() (testcontainers.Container, error) {
 	ctx := context.Background()
 
-	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			Image:        "redis:6-alpine",
-			ExposedPorts: []string{"6379/tcp"},
-			WaitingFor:   wait.ForLog("Ready to accept connections"),
-		},
-		Started: true,
-	})
+	//c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+	//	ContainerRequest: testcontainers.ContainerRequest{
+	//		Image:        "redis:6-alpine",
+	//		ExposedPorts: []string{"6379/tcp"},
+	//		WaitingFor:   wait.ForLog("Ready to accept connections"),
+	//	},
+	//	Started: true,
+	//})
 
-	//c, err := redis.RunContainer(ctx, testcontainers.WithImage("redis:6-alpine"))
+	c, err := redis.RunContainer(ctx, testcontainers.WithImage("redis:6-alpine"))
 	if err != nil {
 		return nil, err
 	}
 
-	redisConn, err := c.ContainerIP(ctx)
+	redisConn, err := c.ConnectionString(ctx)
 	if err != nil {
 		return nil, err
 	}

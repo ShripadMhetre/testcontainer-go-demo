@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -9,12 +10,14 @@ import (
 )
 
 type ResourceHandler struct {
-	resourceRepository *repositories.PostgresRepository
+	pgRepository    *repositories.PostgresRepository
+	redisRepository *repositories.RedisRepository
 }
 
-func NewResourceHandler(resourceRepo *repositories.PostgresRepository) *ResourceHandler {
+func NewResourceHandler(pgRepo *repositories.PostgresRepository, redisRepo *repositories.RedisRepository) *ResourceHandler {
 	return &ResourceHandler{
-		resourceRepository: resourceRepo,
+		pgRepository:    pgRepo,
+		redisRepository: redisRepo,
 	}
 }
 
@@ -28,7 +31,14 @@ func (h ResourceHandler) CreateResourceHandler(c *gin.Context) {
 	newResourceId := uuid.New().String()
 	newResource := &models.Resource{ID: newResourceId, OfferId: "dunes", SiteGeoLocation: resourceRequest.SiteGeoLocation,
 		AssetInfo: resourceRequest.AssetInfo}
-	err := h.resourceRepository.CreateResource(newResource)
+	err := h.pgRepository.CreateResource(newResource)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Cache the resource in Redis
+	err = h.redisRepository.CacheResource(c, newResourceId, *newResource)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -40,11 +50,21 @@ func (h ResourceHandler) CreateResourceHandler(c *gin.Context) {
 func (h ResourceHandler) GetResourceHandler(c *gin.Context) {
 	resourceId := c.Param("resource-id")
 
-	resource, err := h.resourceRepository.GetResourceById(resourceId)
+	// Check if the resource is cached in Redis
+	cachedResource, err := h.redisRepository.GetResource(c, resourceId)
+	if err == nil {
+		fmt.Println("Resource found in Redis for resourceId:", resourceId)
+		c.JSON(http.StatusOK, cachedResource)
+		return
+	}
+
+	// If the resource is not cached in Redis, fetch it from the database
+	resource, err := h.pgRepository.GetResourceById(resourceId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	fmt.Println("Resource fetched from DB:", resourceId)
 	c.JSON(http.StatusOK, resource)
 }

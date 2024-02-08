@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"log"
 	"testcontainers-demo/app"
@@ -17,6 +18,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Redis repository instantiation
+	redisRepository, err := repositories.NewRedisRepository(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Helper route
 	router.GET("/metadata", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -24,7 +31,7 @@ func main() {
 		})
 	})
 
-	resourceHandler := handlers.NewResourceHandler(pgRepository)
+	resourceHandler := handlers.NewResourceHandler(pgRepository, redisRepository)
 
 	// Business routes
 	router.GET("/resource/:resource-id", resourceHandler.GetResourceHandler)
