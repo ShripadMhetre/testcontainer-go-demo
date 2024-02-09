@@ -44,11 +44,13 @@ func (suite *ResourceServiceTestSuite) SetupSuite() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	postgresConn, err := pgContainer.ConnectionString(suite.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	suite.pgContainer = pgContainer
+
 	pgRepository, err := repositories.NewPostgresRepository(postgresConn)
 	if err != nil {
 		log.Fatal(err)
@@ -66,6 +68,7 @@ func (suite *ResourceServiceTestSuite) SetupSuite() {
 		log.Fatal(err)
 	}
 	suite.redisContainer = redisContainer
+
 	redisRepository, err := repositories.NewRedisRepository(suite.ctx, redisConn)
 	if err != nil {
 		log.Fatal(err)

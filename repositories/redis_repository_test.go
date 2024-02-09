@@ -14,6 +14,19 @@ import (
 func TestRedisRepository(t *testing.T) {
 	ctx := context.Background()
 
+	//redisContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+	//	ContainerRequest: testcontainers.ContainerRequest{
+	//		Image:        "redis:6-alpine",
+	//		ExposedPorts: []string{"6379/tcp"},
+	//		Env: map[string]string{
+	//			"REDIS_TLS":      "true",
+	//			"REDIS_PASSWORD": "password",
+	//		},
+	//		WaitingFor: wait.ForLog("Ready to accept connections"),
+	//	},
+	//	Started: true,
+	//})
+
 	redisContainer, err := redis.RunContainer(ctx, testcontainers.WithImage("docker.io/redis:6-alpine"))
 	require.NoError(t, err)
 

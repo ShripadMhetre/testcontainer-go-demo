@@ -1,5 +1,6 @@
 package models
 
+// CreateResourceRequest represents the request body for creating a new resource
 type CreateResourceRequest struct {
 	SiteGeoLocation string    `json:"site_geo_location,omitempty"`
 	AssetInfo       AssetInfo `json:"asset_info" binding:"required"`
@@ -12,6 +13,7 @@ type AssetInfo struct {
 	ServerType  string `json:"server_type" binding:"omitempty,min=1,max=16"`
 }
 
+// Resource represents a resource in the system
 type Resource struct {
 	ID              string    `gorm:"type:varchar;primaryKey;not null" json:"resource_id"`
 	OfferId         string    `json:"offer_id,omitempty"`
