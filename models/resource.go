@@ -17,6 +17,4 @@ type Resource struct {
 	OfferId         string    `json:"offer_id,omitempty"`
 	SiteGeoLocation string    `json:"site_geo_location,omitempty"`
 	AssetInfo       AssetInfo `json:"asset_info" gorm:"embedded"`
-	//AssetOperationStatus string    `json:"asset_operation_status,omitempty"`
-	//AssetHealthStatus    string    `json:"asset_health_status,omitempty"`
 }
