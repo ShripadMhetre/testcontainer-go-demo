@@ -1,8 +1,8 @@
 package app
 
-type metadata struct {
+type Metadata struct {
 	PostgresURL string
 	RedisURL    string
 }
 
-var Connections *metadata = &metadata{}
+var Connections *Metadata = &Metadata{}

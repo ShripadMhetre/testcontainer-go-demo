@@ -8,7 +8,6 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"testcontainers-demo/app"
 	"testcontainers-demo/models"
 	"testing"
 	"time"
@@ -38,8 +37,7 @@ func TestPostgresRepository(t *testing.T) {
 	connStr, err := pgContainer.ConnectionString(ctx)
 	require.NoError(t, err)
 
-	app.Connections.PostgresURL = connStr
-	repo, err := NewPostgresRepository()
+	repo, err := NewPostgresRepository(connStr)
 	require.NoError(t, err)
 	assert.NotNil(t, repo)
 

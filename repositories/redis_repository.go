@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"os"
-	"testcontainers-demo/app"
 	"testcontainers-demo/models"
 )
 
@@ -16,9 +15,9 @@ type RedisRepository struct {
 }
 
 // NewRedisRepository creates a new repository. It will receive a context and the Redis connection string.
-func NewRedisRepository(ctx context.Context) (*RedisRepository, error) {
-	fmt.Println("REDIS URL: ", app.Connections.RedisURL)
-	options, err := redis.ParseURL(app.Connections.RedisURL)
+func NewRedisRepository(ctx context.Context, redisURL string) (*RedisRepository, error) {
+	//fmt.Println("REDIS URL: ", app.Connections.RedisURL)
+	options, err := redis.ParseURL(redisURL)
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Unable to connect to Redis: %v\n", err)
 		return nil, err

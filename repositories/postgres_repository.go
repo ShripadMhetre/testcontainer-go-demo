@@ -5,7 +5,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"testcontainers-demo/app"
 	"testcontainers-demo/models"
 )
 
@@ -13,10 +12,10 @@ type PostgresRepository struct {
 	db *gorm.DB
 }
 
-func NewPostgresRepository() (*PostgresRepository, error) {
+func NewPostgresRepository(postgresURL string) (*PostgresRepository, error) {
 	//dsn := "user=username password=password dbname=dbname host=localhost port=5432 sslmode=disable"
-	dsn := app.Connections.PostgresURL
-	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	//dsn := app.Connections.PostgresURL
+	client, err := gorm.Open(postgres.Open(postgresURL), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}

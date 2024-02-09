@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/redis"
-	"testcontainers-demo/app"
 	"testcontainers-demo/models"
 	"testing"
 )
@@ -27,8 +26,7 @@ func TestRedisRepository(t *testing.T) {
 	connStr, err := redisContainer.ConnectionString(ctx)
 	require.NoError(t, err)
 
-	app.Connections.RedisURL = connStr
-	repo, err := NewRedisRepository(ctx)
+	repo, err := NewRedisRepository(ctx, connStr)
 	require.NoError(t, err)
 	assert.NotNil(t, repo)
 
